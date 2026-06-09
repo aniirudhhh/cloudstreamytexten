@@ -293,7 +293,14 @@ class YouTubeProvider : MainAPI() {
      */
     override suspend fun load(url: String): LoadResponse? {
         return try {
+            val videoId = Regex("""(?:v=|/embed/|youtu\.be/)([^&?]+)""").find(url)?.groupValues?.get(1)
+                ?: Regex("""yt_video:([^&?]+)""").find(url)?.groupValues?.get(1)
+            val playlistId = Regex("""(?:list=)([^&?]+)""").find(url)?.groupValues?.get(1)
+                ?: Regex("""yt_playlist:([^&?]+)""").find(url)?.groupValues?.get(1)
+
             when {
+                playlistId != null -> loadPlaylist(playlistId)
+                videoId != null -> loadVideo(videoId)
                 url.startsWith(VIDEO_PREFIX)    -> loadVideo(url.removePrefix(VIDEO_PREFIX))
                 url.startsWith(PLAYLIST_PREFIX) -> loadPlaylist(url.removePrefix(PLAYLIST_PREFIX))
                 // Bare ID fallback: assume video (e.g. from external deep link).
@@ -355,7 +362,7 @@ class YouTubeProvider : MainAPI() {
             val recTitle = rec.title ?: return@mapNotNull null
             newMovieSearchResponse(
                 name = recTitle,
-                url = "$VIDEO_PREFIX$recId",
+                url = "$mainUrl/watch?v=$recId",
                 type = TvType.Movie,
             ) {
                 posterUrl = rec.videoThumbnails.orEmpty().bestThumbnailUrl()
@@ -365,10 +372,10 @@ class YouTubeProvider : MainAPI() {
 
         return newMovieLoadResponse(
             name = title,
-            url = "$VIDEO_PREFIX$videoId",
+            url = "$mainUrl/watch?v=$videoId",
             type = TvType.Movie,
             // dataUrl is the value passed verbatim to loadLinks(); we embed the video ID.
-            dataUrl = "$VIDEO_PREFIX$videoId",
+            dataUrl = "$mainUrl/watch?v=$videoId",
         ) {
             this.plot = plot
             this.tags = tags
@@ -414,7 +421,7 @@ class YouTubeProvider : MainAPI() {
         // Map each playlist entry to a CloudStream episode.
         val episodes = playlist.videos.orEmpty().mapIndexed { idx, video ->
             val vid = video.videoId ?: return@mapIndexed null
-            newEpisode(data = "$VIDEO_PREFIX$vid") {
+            newEpisode(data = "$mainUrl/watch?v=$vid") {
                 this.name = video.title
                 // Use index from API if present (handles non-sequential playlists);
                 // fall back to the list iteration index.
@@ -428,7 +435,7 @@ class YouTubeProvider : MainAPI() {
 
         return newTvSeriesLoadResponse(
             name = "$title [Playlist]",
-            url = "$PLAYLIST_PREFIX$playlistId",
+            url = "$mainUrl/playlist?list=$playlistId",
             type = TvType.TvSeries,
             episodes = episodes,
         ) {
@@ -485,7 +492,9 @@ class YouTubeProvider : MainAPI() {
     ): Boolean {
         return try {
             // Strip the prefix to get the bare video ID.
-            val videoId = data.removePrefix(VIDEO_PREFIX)
+            val videoId = Regex("""(?:v=|/embed/|youtu\.be/)([^&?]+)""").find(data)?.groupValues?.get(1)
+                ?: Regex("""yt_video:([^&?]+)""").find(data)?.groupValues?.get(1)
+                ?: data.removePrefix(VIDEO_PREFIX)
 
             var emittedCount = 0
 
@@ -671,7 +680,7 @@ class YouTubeProvider : MainAPI() {
         }
         return newMovieSearchResponse(
             name = displayTitle,
-            url = "$VIDEO_PREFIX$id",
+            url = "$mainUrl/watch?v=$id",
             type = TvType.Movie,
         ) {
             posterUrl = videoThumbnails.orEmpty().bestThumbnailUrl()?.resolveUrl()
@@ -693,7 +702,7 @@ class YouTubeProvider : MainAPI() {
         }
         return newTvSeriesSearchResponse(
             name = displayTitle,
-            url = "$PLAYLIST_PREFIX$id",
+            url = "$mainUrl/playlist?list=$id",
             type = TvType.TvSeries,
         ) {
             // Use the playlist thumbnail URL directly — it's a full URL from Invidious.
