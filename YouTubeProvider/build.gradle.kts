@@ -8,3 +8,7 @@ cloudstream {
     language = "en"
     authors = listOf("aniirudhhh")
 }
+
+android {
+    namespace = "com.example.youtubeprovider"
+}
