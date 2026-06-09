@@ -79,6 +79,7 @@ subprojects {
     }
 
     dependencies {
+        val apk by configurations
         // Provided by the CloudStream host app at runtime — do not bundle
         // Uses the 'apk' configuration from the CloudStream gradle plugin to generate stubs from the host APK
         apk("com.lagradost:cloudstream3:pre-release")
