@@ -1,14 +1,14 @@
 [
   {
-    "url": "https://raw.githubusercontent.com/aniirudhhh/cloudstreamytexten/builds/YouTubeProvider.cs3",
+    "url": "https://cdn.jsdelivr.net/gh/aniirudhhh/cloudstreamytexten@builds/YouTubeProvider.cs3",
     "status": 1,
     "internalName": "YouTubeProvider",
     "name": "YouTube (Invidious)",
     "pluginType": "provider",
-    "version": 3,
+    "version": 4,
     "apiVersion": 13,
     "repositoryUrl": "https://github.com/aniirudhhh/cloudstreamytexten",
-    "iconUrl": "https://raw.githubusercontent.com/aniirudhhh/cloudstreamytexten/main/YouTubeProvider/icon.png",
+    "iconUrl": "https://cdn.jsdelivr.net/gh/aniirudhhh/cloudstreamytexten@main/YouTubeProvider/icon.png",
     "language": "en",
     "authors": [
       "aniirudhhh"

@@ -3,6 +3,6 @@
   "description": "YouTube provider for CloudStream3 via a self-hosted Invidious instance. Supports trending, search, videos, playlists, and DASH/adaptive stream extraction.",
   "manifestVersion": 1,
   "pluginLists": [
-    "https://raw.githubusercontent.com/aniirudhhh/cloudstreamytexten/builds/plugins.json"
+    "https://cdn.jsdelivr.net/gh/aniirudhhh/cloudstreamytexten@builds/plugins.json"
   ]
 }
