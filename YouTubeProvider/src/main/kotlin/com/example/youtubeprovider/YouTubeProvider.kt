@@ -308,9 +308,7 @@ class YouTubeProvider : MainAPI() {
             }
         } catch (e: Exception) {
             logError(e)
-            newMovieLoadResponse("Debug Error", url, TvType.Movie, url) {
-                this.plot = e.stackTraceToString()
-            }
+            null
         }
     }
 
@@ -335,14 +333,10 @@ class YouTubeProvider : MainAPI() {
         val localParam = if (PROXY_STREAMS) "?local=true" else ""
         val url = "$mainUrl/api/v1/videos/$videoId$localParam"
 
-        val response = app.get(url)
-        if (!response.isSuccessful) {
-            throw Exception("HTTP ${response.code}: ${response.text}")
-        }
-        
-        val video: InvidiousVideo = mapper.readValue(response.text)
+        val responseBody = safeGet(url) ?: return null
+        val video: InvidiousVideo = mapper.readValue(responseBody)
 
-        val title = video.title ?: throw Exception("Video title is null. JSON: ${response.text.take(500)}")
+        val title = video.title ?: return null // A video with no title is unusable.
 
         // Build the plot/description string that appears in CloudStream's detail screen.
         // Prepend view count, age, and channel name so they're visible at a glance.

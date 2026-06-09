@@ -5,7 +5,7 @@
     "internalName": "YouTubeProvider",
     "name": "YouTube (Invidious)",
     "pluginType": "provider",
-    "version": 4,
+    "version": 5,
     "apiVersion": 13,
     "repositoryUrl": "https://github.com/aniirudhhh/cloudstreamytexten",
     "iconUrl": "https://cdn.jsdelivr.net/gh/aniirudhhh/cloudstreamytexten@main/YouTubeProvider/icon.png",
