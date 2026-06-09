@@ -39,8 +39,8 @@ buildscript {
 
     dependencies {
         classpath("com.android.tools.build:gradle:8.7.3")
-        // CloudStream Gradle plugin — MUST use the sub-module artifact to bypass the broken parent POM
-        classpath("com.github.recloudstream.gradle:gradle:master-SNAPSHOT")
+        // CloudStream Gradle plugin — exact version to bypass JitPack SNAPSHOT JAR mismatch
+        classpath("com.github.recloudstream.gradle:gradle:master-81b1d424d2-1")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0")
     }
 }
