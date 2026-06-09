@@ -36,9 +36,10 @@ subprojects {
     apply(plugin = "com.lagradost.cloudstream3.gradle")
 
     cloudstream {
-        // when running through github workflow, GITHUB_REPOSITORY should contain current repository name
-        // you can modify it to use other git hosting services, like gitlab
-        setRepo(System.getenv("GITHUB_REPOSITORY") ?: "https://github.com/aniirudhhh/cloudstreamytexten")
+        // Force CloudStream plugin to generate jsdelivr URLs for .cs3 files
+        // instead of raw.githubusercontent.com, which is blocked by some ISPs.
+        val repoId = System.getenv("GITHUB_REPOSITORY") ?: "aniirudhhh/cloudstreamytexten"
+        setRepo("https://cdn.jsdelivr.net/gh/$repoId@builds")
     }
 
     android {
