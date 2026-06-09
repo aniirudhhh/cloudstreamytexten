@@ -1,7 +1,7 @@
 package com.example.youtubeprovider
 
 import com.lagradost.cloudstream3.plugins.CloudstreamPlugin
-import com.lagradost.cloudstream3.plugins.Plugin
+import com.lagradost.cloudstream3.plugins.BasePlugin
 import android.content.Context
 
 /**
@@ -17,7 +17,7 @@ import android.content.Context
  * home page rows, search, and video loading are routed through it.
  */
 @CloudstreamPlugin
-class YouTubeProviderPlugin : Plugin() {
+class YouTubeProviderPlugin : BasePlugin() {
 
     /**
      * Called by CloudStream when the plugin is loaded.
@@ -30,7 +30,7 @@ class YouTubeProviderPlugin : Plugin() {
      *                 Not currently used by YouTubeProvider, but kept as a parameter
      *                 for future use (e.g. reading SharedPreferences for user settings).
      */
-    override fun load(context: Context) {
+    override fun load() {
         // Instantiate and register the main provider.
         // registerMainAPI() adds it to CloudStream's internal provider registry so
         // that search(), getMainPage(), load(), and loadLinks() are called at the

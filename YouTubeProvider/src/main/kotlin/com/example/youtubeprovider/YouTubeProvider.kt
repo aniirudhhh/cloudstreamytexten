@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.*
+import com.lagradost.cloudstream3.mvvm.logError
 import java.util.Calendar
 
 // ============================================================================
@@ -102,9 +103,6 @@ class YouTubeProvider : MainAPI() {
     /** Enables the home-page rows defined in [mainPage]. */
     override val hasMainPage = true
 
-    /** Enables the search bar in CloudStream. */
-    override val hasSearch = true
-
     // ──────────────────────────────────────────────────────────────────────────
     // Jackson JSON mapper
     // ──────────────────────────────────────────────────────────────────────────
@@ -165,10 +163,10 @@ class YouTubeProvider : MainAPI() {
      * The "technology" category is not a trending type on YouTube, so we proxy it
      * through the search endpoint instead.
      *
-     * @param request  Contains [HomePageRequest.data] (the key from [mainPage]) and
-     *                 [HomePageRequest.page] (1-based page number).
+     * @param request  Contains [MainPageRequest.data] (the key from [mainPage]) and
+     *                 [MainPageRequest.page] (1-based page number).
      */
-    override suspend fun getMainPage(page: Int, request: HomePageRequest): HomePageResponse? {
+    override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
         return try {
             val data = request.data
 
@@ -176,7 +174,7 @@ class YouTubeProvider : MainAPI() {
             // to avoid showing duplicates and confusing the user.
             if ((data == "trending" || data == "popular") && page > 1) {
                 return newHomePageResponse(
-                    name = request.name,
+                    request,
                     list = emptyList(),
                     hasNext = false,
                 )
@@ -213,7 +211,7 @@ class YouTubeProvider : MainAPI() {
             val hasNext = data == "technology" && searchResponses.isNotEmpty()
 
             newHomePageResponse(
-                name = request.name,
+                request,
                 list = searchResponses,
                 hasNext = hasNext,
             )
@@ -383,7 +381,7 @@ class YouTubeProvider : MainAPI() {
             year = video.published?.let { timestampToYear(it) }
 
             // Duration shown as "H:MM:SS" or "M:SS" in the CloudStream detail card.
-            addDuration(formatDuration(video.lengthSeconds))
+            this.duration = video.lengthSeconds?.let { it / 60 }
         }
     }
 
@@ -502,16 +500,15 @@ class YouTubeProvider : MainAPI() {
             if (safeHead(dashManifestUrl)) {
                 // HEAD check passed — the manifest exists and is reachable.
                 callback(
-                    newExtractorLink(
-                        source = name,
-                        name = "$name DASH",
-                        url = dashManifestUrl,
-                        referer = mainUrl,
-                        quality = Qualities.Unknown.value,
-                        isM3u8 = false, // DASH, not HLS
-                        type = ExtractorLinkType.DASH,
-                    )
-                )
+                        newExtractorLink(
+                            source = name,
+                            name = "$name DASH",
+                            url = dashManifestUrl,
+                            type = ExtractorLinkType.DASH,
+                        ) {
+                            this.referer = mainUrl
+                            this.quality = Qualities.Unknown.value
+                        }              )
                 emittedCount++
             }
 
@@ -551,11 +548,11 @@ class YouTubeProvider : MainAPI() {
                             source = name,
                             name = "$name ${vStream.qualityLabel ?: "Unknown"}",
                             url = streamUrl,
-                            referer = mainUrl,
-                            quality = qualityLabelToInt(vStream.qualityLabel),
-                            isM3u8 = false,
                             type = ExtractorLinkType.VIDEO,
-                        )
+                        ) {
+                            this.referer = mainUrl
+                            this.quality = qualityLabelToInt(vStream.qualityLabel)
+                        }
                     )
                     emittedCount++
                 }
@@ -567,11 +564,11 @@ class YouTubeProvider : MainAPI() {
                             source = name,
                             name = "$name Audio Only",
                             url = audioUrl,
-                            referer = mainUrl,
-                            quality = Qualities.Unknown.value,
-                            isM3u8 = false,
                             type = ExtractorLinkType.VIDEO,
-                        )
+                        ) {
+                            this.referer = mainUrl
+                            this.quality = Qualities.Unknown.value
+                        }
                     )
                     emittedCount++
                 }
@@ -593,11 +590,11 @@ class YouTubeProvider : MainAPI() {
                                 source = name,
                                 name = "$name ${fStream.quality ?: "Unknown"}",
                                 url = streamUrl,
-                                referer = mainUrl,
-                                quality = qualityStringToInt(fStream.quality),
-                                isM3u8 = false,
                                 type = ExtractorLinkType.VIDEO,
-                            )
+                            ) {
+                                this.referer = mainUrl
+                                this.quality = qualityStringToInt(fStream.quality)
+                            }
                         )
                         emittedCount++
                     }

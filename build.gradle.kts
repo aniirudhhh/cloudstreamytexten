@@ -14,7 +14,7 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle:8.7.3")
         // Cloudstream gradle plugin which makes everything work and builds plugins
-        classpath("com.github.recloudstream:gradle:-SNAPSHOT")
+        classpath("com.github.recloudstream.gradle:gradle:81b1d424d2")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.0")
     }
 }
@@ -26,7 +26,6 @@ allprojects {
         maven("https://jitpack.io")
     }
 }
-
 fun Project.cloudstream(configuration: CloudstreamExtension.() -> Unit) = extensions.getByName<CloudstreamExtension>("cloudstream").configuration()
 
 fun Project.android(configuration: BaseExtension.() -> Unit) = extensions.getByName<BaseExtension>("android").configuration()
