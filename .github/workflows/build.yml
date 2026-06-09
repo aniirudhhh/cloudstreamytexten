@@ -75,8 +75,9 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-          # Copy the static repo.json from the source tree (checked in on main) to our staging dir.
+          # Copy the static repo.json and plugins.json from the source tree (checked in on main) to our staging dir.
           cp repo.json builds_output/repo.json || true
+          cp plugins.json builds_output/plugins.json || true
 
           # Create (or switch to) an orphan builds branch so it has no history
           # from main — keeps the branch size small.
@@ -88,6 +89,7 @@ jobs:
           # Copy the staged artefacts into the root of the working tree.
           cp builds_output/*.cs3      . 2>/dev/null || true
           cp builds_output/repo.json  . 2>/dev/null || true
+          cp builds_output/plugins.json . 2>/dev/null || true
 
           git add -A
           git commit -m "Build: ${{ github.sha }}" || echo "Nothing to commit."
