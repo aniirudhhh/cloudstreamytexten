@@ -218,11 +218,12 @@ class YouTubeProvider : MainAPI() {
             )
         } catch (e: Exception) {
             val errorMsg = e.stackTraceToString().take(500)
-            HomePageResponse(
-                items = listOf(HomePageList(
+            newHomePageResponse(
+                list = listOf(HomePageList(
                     name = "Error: $errorMsg",
                     list = emptyList()
-                ))
+                )),
+                hasNext = false
             )
         }
     }
