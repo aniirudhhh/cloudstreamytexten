@@ -52,13 +52,13 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
       # ── Collect artefacts ───────────────────────────────────────────────────
-      # The CloudStream `make` task writes output to YouTubeProvider/build/outputs/.
-      # We copy the .cs3 and plugins.json to a staging directory for the commit step.
+      # The CloudStream `make` task writes output to YouTubeProvider/build/.
+      # We copy the .cs3 to a staging directory for the commit step.
       - name: Collect build artefacts
         run: |
           mkdir -p builds_output
-          find YouTubeProvider/build/outputs -name "*.cs3" -exec cp {} builds_output/ \;
-          find YouTubeProvider/build/outputs -name "plugins.json" -exec cp {} builds_output/ \;
+          find YouTubeProvider/build -maxdepth 1 -name "*.cs3" -exec cp {} builds_output/ \;
+          find YouTubeProvider/build -maxdepth 1 -name "plugins.json" -exec cp {} builds_output/ \; || true
           echo "── Artefacts collected ──"
           ls -lh builds_output/
 
