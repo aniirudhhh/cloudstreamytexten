@@ -49,7 +49,7 @@ buildscript {
 
     dependencies {
         // CloudStream Gradle plugin — the -SNAPSHOT tag always resolves to the latest snapshot.
-        classpath("com.github.recloudstream:gradle:-SNAPSHOT")
+        classpath("com.github.recloudstream:gradle:master-SNAPSHOT")
         // Kotlin Gradle plugin — must match the kotlin() version used in sub-projects.
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.0")
     }

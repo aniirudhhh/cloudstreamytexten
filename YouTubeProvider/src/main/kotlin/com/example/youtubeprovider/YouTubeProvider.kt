@@ -22,7 +22,7 @@ import java.util.Calendar
  * You can find public instances at https://api.invidious.io/ but for production
  * use you should host your own to avoid rate-limiting and downtime.
  */
-const val INVIDIOUS_BASE_URL = "http://localhost:3000"
+const val INVIDIOUS_BASE_URL = "http://192.168.1.6:3000"
 
 /**
  * When true, all API requests that return stream URLs will include ?local=true.
