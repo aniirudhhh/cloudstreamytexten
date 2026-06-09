@@ -193,13 +193,14 @@ class YouTubeProvider : MainAPI() {
                 else       -> return null
             }
 
-            val responseBody = safeGet(url) ?: return null
+            val responseBody = safeGet(url) ?: throw Exception("Network request failed or returned non-200 for URL: $url")
             val items: List<InvidiousSearchItem> = mapper.readValue(responseBody)
 
             // Map each Invidious item to a CloudStream SearchResponse.
             // Items with missing videoId or title are skipped via mapNotNull.
             val searchResponses = items.mapNotNull { item ->
-                when (item.type) {
+                val inferredType = item.type ?: if (item.videoId != null) "video" else if (item.playlistId != null) "playlist" else "unknown"
+                when (inferredType) {
                     "video" -> item.toVideoSearchResponse()
                     "playlist" -> item.toPlaylistSearchResponse()
                     // Skip channel items — CloudStream has no channel browsing UI.
@@ -216,8 +217,13 @@ class YouTubeProvider : MainAPI() {
                 hasNext = hasNext,
             )
         } catch (e: Exception) {
-            logError(e)
-            null
+            val errorMsg = e.stackTraceToString().take(500)
+            HomePageResponse(
+                items = listOf(HomePageList(
+                    name = "Error: $errorMsg",
+                    list = emptyList()
+                ))
+            )
         }
     }
 
@@ -263,7 +269,8 @@ class YouTubeProvider : MainAPI() {
             val items: List<InvidiousSearchItem> = mapper.readValue(responseBody)
 
             items.mapNotNull { item ->
-                when (item.type) {
+                val inferredType = item.type ?: if (item.videoId != null) "video" else if (item.playlistId != null) "playlist" else "unknown"
+                when (inferredType) {
                     "video"    -> item.toVideoSearchResponse()
                     "playlist" -> item.toPlaylistSearchResponse()
                     else       -> null // skip channels

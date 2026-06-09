@@ -1,5 +1,5 @@
 // Extension version — bump this integer to trigger CloudStream's update checker.
-version = 5
+version = 6
 
 cloudstream {
     // These properties are injected into the final repo.json by the plugin
