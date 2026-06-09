@@ -1,0 +1,23 @@
+[
+  {
+    "url": "https://cdn.jsdelivr.net/gh/aniirudhhh/cloudstreamytexten@builds/YouTubeProvider.cs3",
+    "status": 1,
+    "internalName": "YouTubeProvider",
+    "name": "YouTube (Invidious)",
+    "pluginType": "provider",
+    "version": 7,
+    "apiVersion": 13,
+    "repositoryUrl": "https://github.com/aniirudhhh/cloudstreamytexten",
+    "iconUrl": "https://cdn.jsdelivr.net/gh/aniirudhhh/cloudstreamytexten@main/YouTubeProvider/icon.png",
+    "language": "en",
+    "authors": [
+      "aniirudhhh"
+    ],
+    "description": "Browse and stream YouTube content through your own Invidious instance. Supports trending categories, full-text search, playlists, and DASH adaptive streaming.",
+    "tvTypes": [
+      "Movie",
+      "TvSeries",
+      "Others"
+    ]
+  }
+]
