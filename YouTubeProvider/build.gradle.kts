@@ -2,9 +2,9 @@
 version = 1
 
 cloudstream {
-    /**
-     * pluginClassName must exactly match the @CloudstreamPlugin-annotated class name.
-     * CloudStream uses reflection to instantiate it; a mismatch silently fails to load.
-     */
-    pluginClassName = "YouTubeProviderPlugin"
+    // These properties are injected into the final repo.json by the plugin
+    description = "Sourced from a self-hosted Invidious instance."
+    status = 1
+    language = "en"
+    authors = listOf("aniirudhhh")
 }
