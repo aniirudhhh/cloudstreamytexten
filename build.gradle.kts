@@ -48,8 +48,15 @@ buildscript {
     }
 
     dependencies {
-        // CloudStream Gradle plugin — the -SNAPSHOT tag always resolves to the latest snapshot.
-        classpath("com.github.recloudstream:gradle:master-SNAPSHOT")
+        // CloudStream Gradle plugin loaded from JitPack.
+        // WHY the exclude: JitPack's master-SNAPSHOT POM for this plugin has a broken
+        // transitive dependency declaration on its own sub-module artifact
+        // (com.github.recloudstream.gradle:gradle) which JitPack never publishes.
+        // Excluding it prevents "Could not find" resolution failures; the plugin itself
+        // loads fine because the implementation classes are in the root artifact.
+        classpath("com.github.recloudstream:gradle:master-SNAPSHOT") {
+            exclude(group = "com.github.recloudstream.gradle", module = "gradle")
+        }
         // Kotlin Gradle plugin — must match the kotlin() version used in sub-projects.
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.0")
     }

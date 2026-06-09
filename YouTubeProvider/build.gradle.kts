@@ -5,14 +5,20 @@
  * `cloudstream {}` DSL block and the `make` task that bundles everything into a
  * .cs3 artefact ready for sideloading or repository hosting.
  */
+// WHY: The plugins {} block resolves through the Gradle Plugin Portal, which has no
+// knowledge of JitPack-hosted plugins. The CloudStream plugin lives only on JitPack,
+// so it must be applied via apply(plugin=...) which uses the buildscript classpath
+// populated in the root build.gradle.kts. The Android and Kotlin plugins stay in
+// plugins {} because they ARE available through standard channels.
 plugins {
-    // The CloudStream plugin must be applied before the Android plugin so it can
-    // inject the correct manifest and compile-time annotations.
-    id("com.lagradost.cloudstream3.gradle")
-    // Standard Kotlin-for-Android plugin; version is inherited from the root buildscript.
     id("com.android.library")
     kotlin("android") version "2.3.0"
 }
+
+// Apply the CloudStream Gradle plugin from the buildscript classpath (JitPack).
+// This adds the cloudstream {} DSL extension and the :make task.
+apply(plugin = "com.lagradost.cloudstream3.gradle")
+
 
 // ---------------------------------------------------------------------------
 // CloudStream extension metadata
