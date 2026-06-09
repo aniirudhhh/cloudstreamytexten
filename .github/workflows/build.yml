@@ -75,8 +75,9 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-          # Copy the static repo.json from the source tree (checked in on main) to our staging dir.
+          # Copy the static repo.json and plugins.json from the source tree (checked in on main) to our staging dir.
           cp repo.json builds_output/repo.json || true
+          cp plugins.json builds_output/plugins.json || true
 
           # Create (or switch to) an orphan builds branch so it has no history
           # from main — keeps the branch size small.
