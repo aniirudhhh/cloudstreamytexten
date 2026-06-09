@@ -1,0 +1,103 @@
+name: Build CloudStream Extension
+
+# ─── Triggers ─────────────────────────────────────────────────────────────────
+# Build automatically on push to main or master, and allow manual runs via the
+# GitHub Actions UI ("workflow_dispatch") for debugging or forced releases.
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+# ─── Permissions ──────────────────────────────────────────────────────────────
+permissions:
+  contents: write   # Required for the force-push to the builds branch.
+
+# ─── Jobs ─────────────────────────────────────────────────────────────────────
+jobs:
+  build:
+    name: Build .cs3 Extension
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Full history needed for the force-push step.
+
+      # ── Java setup ──────────────────────────────────────────────────────────
+      # JDK 17 is the minimum supported by the Android Gradle Plugin 8.x.
+      # Temurin (Eclipse Adoptium) is the recommended OpenJDK distribution for CI.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'   # Cache ~/.gradle to speed up subsequent runs.
+
+      # ── Gradle permission ────────────────────────────────────────────────────
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      # ── Build ────────────────────────────────────────────────────────────────
+      # The `make` task is provided by the CloudStream Gradle plugin.
+      # It compiles the extension and produces a .cs3 file plus a plugins.json.
+      # GITHUB_REPOSITORY is passed as an environment variable so that setRepo()
+      # in build.gradle.kts can read it and embed the correct update URL.
+      - name: Build YouTubeProvider extension
+        run: ./gradlew :YouTubeProvider:make
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      # ── Collect artefacts ───────────────────────────────────────────────────
+      # The CloudStream `make` task writes output to YouTubeProvider/build/outputs/.
+      # We copy the .cs3 and plugins.json to a staging directory for the commit step.
+      - name: Collect build artefacts
+        run: |
+          mkdir -p builds_output
+          find YouTubeProvider/build/outputs -name "*.cs3" -exec cp {} builds_output/ \;
+          find YouTubeProvider/build/outputs -name "plugins.json" -exec cp {} builds_output/ \;
+          echo "── Artefacts collected ──"
+          ls -lh builds_output/
+
+      # ── Deploy to builds branch ─────────────────────────────────────────────
+      # We force-push the artefacts to a dedicated `builds` branch so that CloudStream
+      # can fetch them via a raw GitHub URL.  The repo.json in the builds branch root
+      # acts as the extension repository manifest.
+      #
+      # Force-push is safe here because the builds branch is machine-generated and
+      # not intended for manual editing.
+      - name: Deploy to builds branch
+        run: |
+          # Configure git identity for the commit.
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+          # Create (or switch to) an orphan builds branch so it has no history
+          # from main — keeps the branch size small.
+          git checkout --orphan builds 2>/dev/null || git checkout builds
+
+          # Remove everything currently tracked in the working tree.
+          git rm -rf . --ignore-unmatch
+
+          # Copy the staged artefacts into the root of the working tree.
+          cp builds_output/*.cs3      . 2>/dev/null || true
+          cp builds_output/plugins.json . 2>/dev/null || true
+
+          # Copy the static repo.json from the source tree (checked in on main).
+          # If it doesn't exist yet we create a minimal one.
+          if [ -f repo.json ]; then
+            echo "repo.json already present."
+          else
+            echo '{"name":"YouTubeProvider Repo","description":"Self-hosted Invidious CloudStream extension","manifestVersion":1,"plugins":[]}' > repo.json
+          fi
+
+          git add -A
+          git commit -m "Build: ${{ github.sha }}" || echo "Nothing to commit."
+
+          # Force-push overwrites the previous build, keeping the branch size constant.
+          git push --force origin builds
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
