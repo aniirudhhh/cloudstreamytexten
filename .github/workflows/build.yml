@@ -75,6 +75,9 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
+          # Copy the static repo.json from the source tree (checked in on main) to our staging dir.
+          cp repo.json builds_output/repo.json || true
+
           # Create (or switch to) an orphan builds branch so it has no history
           # from main — keeps the branch size small.
           git checkout --orphan builds 2>/dev/null || git checkout builds
@@ -84,15 +87,7 @@ jobs:
 
           # Copy the staged artefacts into the root of the working tree.
           cp builds_output/*.cs3      . 2>/dev/null || true
-          cp builds_output/plugins.json . 2>/dev/null || true
-
-          # Copy the static repo.json from the source tree (checked in on main).
-          # If it doesn't exist yet we create a minimal one.
-          if [ -f repo.json ]; then
-            echo "repo.json already present."
-          else
-            echo '{"name":"YouTubeProvider Repo","description":"Self-hosted Invidious CloudStream extension","manifestVersion":1,"plugins":[]}' > repo.json
-          fi
+          cp builds_output/repo.json  . 2>/dev/null || true
 
           git add -A
           git commit -m "Build: ${{ github.sha }}" || echo "Nothing to commit."
