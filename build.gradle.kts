@@ -24,6 +24,12 @@ import com.lagradost.cloudstream3.gradle.CloudstreamExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
 buildscript {
     repositories {
         google()
@@ -33,8 +39,8 @@ buildscript {
 
     dependencies {
         classpath("com.android.tools.build:gradle:8.7.3")
-        // CloudStream Gradle plugin — hosted on JitPack under recloudstream/gradle
-        classpath("com.github.recloudstream:gradle:master-SNAPSHOT")
+        // CloudStream Gradle plugin — MUST use the sub-module artifact to bypass the broken parent POM
+        classpath("com.github.recloudstream.gradle:gradle:master-SNAPSHOT")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0")
     }
 }
