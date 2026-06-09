@@ -90,6 +90,10 @@ jobs:
           cp builds_output/repo.json  . 2>/dev/null || true
           cp builds_output/plugins.json . 2>/dev/null || true
 
+          # Force jsdelivr URLs in plugins.json to bypass raw.githubusercontent.com block
+          sed -i 's|raw.githubusercontent.com/aniirudhhh/cloudstreamytexten/builds|cdn.jsdelivr.net/gh/aniirudhhh/cloudstreamytexten@builds|g' plugins.json || true
+          sed -i 's|raw.githubusercontent.com/aniirudhhh/cloudstreamytexten/main|cdn.jsdelivr.net/gh/aniirudhhh/cloudstreamytexten@main|g' plugins.json || true
+
           git add -A
           git commit -m "Build: ${{ github.sha }}" || echo "Nothing to commit."
 
